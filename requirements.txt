@@ -1,0 +1,4 @@
+configparser~=5.0.0
+pytz~=2020.1
+tzlocal~=2.1
+discord~=1.0.1
