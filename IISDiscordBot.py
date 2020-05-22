@@ -27,6 +27,12 @@ webhook = Webhook.partial(parser.get('discord', 'webhookid'), parser.get('discor
                           adapter=RequestsWebhookAdapter())
 
 while 1:
+    # check for the latest log file each iteration
+    log_file_latest = max(log_file_path_files, key=os.path.getctime)
+    if log_file.name != log_file_latest:
+        log_file.close()
+        log_file = open(log_file_latest, "r")
+        print("Log file has been rotated to new one " + log_file.name)
     where = log_file.tell()
     log_line = log_file.readline()
     if not log_line:
