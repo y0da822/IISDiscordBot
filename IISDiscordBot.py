@@ -31,16 +31,16 @@ log_file_path = parser.get('iis', 'logfilepath')
 log_file_path_files = glob.glob(log_file_path + "/*.log")
 log_file_latest = max(log_file_path_files, key=os.path.getctime)
 log_file = open(log_file_latest, "r")
-write_log("Opened IIS log file " + log_file.name)
+write_log("Opened IIS log file" + log_file.name, my_log_file)
 
 # get local timezone for utc conversion
 local_tz = get_localzone()
-write_log("Getting local timezone for IIS log date/time conversion")
+write_log("Getting local timezone for IIS log date/time conversion", my_log_file)
 
 # connect to discord webhook
 webhook = Webhook.partial(parser.get('discord', 'webhookid'), parser.get('discord', 'webhooktoken'), \
                           adapter=RequestsWebhookAdapter())
-write_log("Connected to Discord webhook ID (" + parser.get('discord', 'webhookid') + ")")
+write_log("Connected to Discord webhook ID (" + parser.get('discord', 'webhookid') + ")", my_log_file)
 
 while 1:
     # check for the latest log file each iteration
@@ -48,7 +48,7 @@ while 1:
     if log_file.name != log_file_latest:
         log_file.close()
         log_file = open(log_file_latest, "r")
-        write_log("Log file has been rotated to new one " + log_file.name)
+        write_log("Log file has been rotated to new one " + log_file.name, my_log_file)
     where = log_file.tell()
     log_line = log_file.readline()
     if not log_line:
@@ -66,7 +66,7 @@ while 1:
             file_path = log_line_list[len(log_line_list) - 1].replace("+", " ")
             write_log(
                 log_file_latest + ": " + user + " has downloaded " + file_downloaded + " on " + dt_downloaded.strftime(
-                    "%Y-%m-%d %H:%M:%S %Z%z") + " from " + file_path)
+                    "%Y-%m-%d %H:%M:%S %Z%z") + " from " + file_path, my_log_file)
             webhook.send(
                 user + " has downloaded " + file_path + " on " + dt_downloaded.strftime("%Y-%m-%d %H:%M:%S %Z%z"))
         elif "STOR" in log_line:
@@ -79,5 +79,5 @@ while 1:
             file_path = log_line_list[len(log_line_list) - 1].replace("+", " ")
             write_log(
                 log_file_latest + ": " + user + " has uploaded " + file_uploaded + " on " + dt_uploaded.strftime(
-                    "%Y-%m-%d %H:%M:%S %Z%z") + " from " + file_path)
+                    "%Y-%m-%d %H:%M:%S %Z%z") + " from " + file_path, my_log_file)
             webhook.send(user + " has uploaded " + file_path + " on " + dt_uploaded.strftime("%Y-%m-%d %H:%M:%S %Z%z"))
