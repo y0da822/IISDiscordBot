@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# y0da822
+# Author: y0da822
 import time
 import glob
 import os
@@ -28,8 +28,9 @@ parser.read('iisdiscordbot.config')
 
 # connect to log file path and find latest file
 log_file_path = parser.get('iis', 'logfilepath')
-log_file_path_files = glob.glob(log_file_path + "/*.log")
-log_file_latest = max(log_file_path_files, key=os.path.getctime)
+write_log("IIS Log directory is: " + log_file_path, my_log_file)
+log_file_path_files = glob.glob(log_file_path + "\\*.log")
+log_file_latest = max(log_file_path_files, key=os.path.getmtime)
 log_file = open(log_file_latest, "r")
 write_log("Opened IIS log file" + log_file.name, my_log_file)
 
@@ -44,7 +45,9 @@ write_log("Connected to Discord webhook ID (" + parser.get('discord', 'webhookid
 
 while 1:
     # check for the latest log file each iteration
-    log_file_latest = max(log_file_path_files, key=os.path.getctime)
+    log_file_path_files = glob.glob(log_file_path + "\\*.log")
+    log_file_latest = max(log_file_path_files, key=os.path.getmtime)
+    # print("Latest log file: " + log_file_latest)
     if log_file.name != log_file_latest:
         log_file.close()
         log_file = open(log_file_latest, "r")
