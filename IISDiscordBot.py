@@ -5,9 +5,11 @@ import glob
 import os
 import configparser
 from datetime import datetime
+
+import discord
 import pytz
-from tzlocal import get_localzone
 from discord import Webhook, RequestsWebhookAdapter
+from tzlocal import get_localzone
 
 
 # local log file function
@@ -39,7 +41,7 @@ local_tz = get_localzone()
 write_log("Getting local timezone for IIS log date/time conversion", my_log_file)
 
 # connect to discord webhook
-webhook = Webhook.partial(parser.get('discord', 'webhookid'), parser.get('discord', 'webhooktoken'), \
+webhook = Webhook.partial(parser.get('discord', 'webhookid'), parser.get('discord', 'webhooktoken'),
                           adapter=RequestsWebhookAdapter())
 write_log("Connected to Discord webhook ID (" + parser.get('discord', 'webhookid') + ")", my_log_file)
 
@@ -70,8 +72,12 @@ while 1:
             write_log(
                 log_file_latest + ": " + user + " has downloaded " + file_downloaded + " on " + dt_downloaded.strftime(
                     "%Y-%m-%d %H:%M:%S %Z%z") + " from " + file_path, my_log_file)
-            webhook.send(
-                user + " has downloaded " + file_path + " on " + dt_downloaded.strftime("%Y-%m-%d %H:%M:%S %Z%z"))
+            embed = discord.Embed(title="downloaded", colour=discord.Colour(0xc005c6), url="https://discordapp.com",
+                                  description=file_path, timestamp=dt_downloaded)
+            embed.set_author(name=user,
+                             icon_url="https://static.macupdate.com/products/48191/l/ftp-bot-logo.png?v=1568317621")
+            # webhook.send(user + " has downloaded " + file_path + " on " + dt_downloaded.strftime("%Y-%m-%d %H:%M:%S %Z%z"))
+            webhook.send(embed=embed)
         elif "STOR" in log_line:
             log_line_list = log_line.split()
             user = log_line_list[3]
@@ -83,4 +89,9 @@ while 1:
             write_log(
                 log_file_latest + ": " + user + " has uploaded " + file_uploaded + " on " + dt_uploaded.strftime(
                     "%Y-%m-%d %H:%M:%S %Z%z") + " from " + file_path, my_log_file)
-            webhook.send(user + " has uploaded " + file_path + " on " + dt_uploaded.strftime("%Y-%m-%d %H:%M:%S %Z%z"))
+            embed = discord.Embed(title="uploaded", colour=discord.Colour(0xc005c6), url="https://discordapp.com",
+                                  description=file_path, timestamp=dt_uploaded)
+            embed.set_author(name=user,
+                             icon_url="https://static.macupdate.com/products/48191/l/ftp-bot-logo.png?v=1568317621")
+            # webhook.send(user + " has uploaded " + file_path + " on " + dt_uploaded.strftime("%Y-%m-%d %H:%M:%S %Z%z"))
+            webhook.send(embed=embed)
